@@ -12,13 +12,40 @@ import {
 } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { INote } from "@/db/Models/Notes";
+import moment from "moment";
+import axios from "axios";
+import { useToast } from "@/components/ui/use-toast";
 
-export default function NotesButton() {
+export default function NotesButton({ note }: { note: INote }) {
+  const { toast } = useToast();
+  const deleteNote = async (id: string) => {
+    const res = await axios.delete(`/api/note`, {
+      data: {
+        id,
+      },
+    });
+    if (res.data.success) {
+      toast({
+        title: "Note deleted",
+        description: "Your note has been deleted successfully",
+      });
+      window.location.reload();
+    } else {
+      return toast({
+        title: "Error",
+        description: res.data.error,
+      });
+    }
+  };
   return (
-    <div className="text-white bg-[#141414] p-8 rounded-lg border border-[#080808]">
+    <div
+      key={note._id}
+      className="text-white bg-[#141414] p-8 rounded-lg border border-[#080808]"
+    >
       <div className="flex justify-between items-center">
         <div className="flex gap-x-2 items-center justify-center">
-          <h1>Note Title</h1>
+          <h1>{note.title}</h1>
           <Badge variant={"secondary"}>New</Badge>
         </div>
         <div>
@@ -38,6 +65,9 @@ export default function NotesButton() {
                 </Button>
                 <Button
                   variant="ghost"
+                  onClick={() => {
+                    deleteNote(note._id);
+                  }}
                   className="hover:bg-[#242424] hover:text-red-800 text-red-500 gap-x-1"
                 >
                   <TrashIcon className="h-4 w-4" />
@@ -50,23 +80,23 @@ export default function NotesButton() {
       </div>
 
       <div className="py-5">
-        <p className="text-sm text-zinc-500">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid iste
-          quos est facere dolore natus illo, nostrum ut earum expedita accusamus
-          vero fuga ab commodi cupiditate accusantium ipsum quas nulla.
-        </p>
+        <p className="text-sm text-zinc-500">{note.content}</p>
       </div>
 
       <div className="mt-2 flex justify-between items-center">
         <div className="flex items-center gap-x-1">
           <Avatar className="w-6 h-6">
-            <AvatarImage src="https://github.com/shadcn.png" />
-            <AvatarFallback>GW</AvatarFallback>
+            <AvatarImage src={note.author.avatar} />
+            <AvatarFallback>{note.author.name.charAt(0)}</AvatarFallback>
           </Avatar>
-          <p className="text-zinc-500 font-semibold text-sm">Gweep Creative</p>
+          <p className="text-zinc-500 font-semibold text-sm">
+            {note.author.name}
+          </p>
         </div>
         <div>
-          <p className="text-zinc-500 text-sm font-semibold">2 days ago</p>
+          <p className="text-zinc-500 text-sm font-semibold">
+            {moment(note.createdAt).format("D MMM YY dddd HH:mm")}
+          </p>
         </div>
       </div>
     </div>

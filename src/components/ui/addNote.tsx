@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +13,39 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "./button";
+import axios from "axios";
+import { useToast } from "./use-toast";
+import { INote } from "@/db/Models/Notes";
 export default function AddNote() {
+  const [noteTitle, setNoteTitle] = useState<string>();
+  const [noteContent, setNoteContent] = useState<string>();
+  const { toast } = useToast();
+  async function newNote() {
+    await axios
+      .post("/api/note", {
+        title: noteTitle,
+        content: noteContent,
+        author: {
+          name: "Grkn",
+          email: "info@rabelcode.net",
+          avatar: "https://avatars.githubusercontent.com/u/124599?v=4",
+        },
+      })
+      .then((res) => {
+        if (res.data.success) {
+          toast({
+            title: "Note added",
+            description: "Your note has been added successfully",
+          });
+          window.location.reload();
+        } else {
+          toast({
+            title: "Error",
+            description: res.data.error,
+          });
+        }
+      });
+  }
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -35,6 +68,9 @@ export default function AddNote() {
             </Label>
             <Input
               id="name"
+              onChange={(e) => {
+                setNoteTitle(e.target.value);
+              }}
               placeholder="Enter note title"
               className="col-span-3 border-[#363636]"
             />
@@ -45,12 +81,17 @@ export default function AddNote() {
             </Label>
             <Textarea
               placeholder="Enter note content"
+              onChange={(e) => setNoteContent(e.target.value)}
               className="col-span-3 border-[#363636]"
             />
           </div>
         </div>
         <DialogFooter>
-          <Button className="bg-[#080808] hover:bg-[#141414]" type="submit">
+          <Button
+            onClick={() => newNote()}
+            className="bg-[#080808] hover:bg-[#141414]"
+            type="submit"
+          >
             Add Note
           </Button>
         </DialogFooter>

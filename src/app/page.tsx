@@ -1,9 +1,23 @@
+"use client";
 import NotesButton from "@/components/ui/NotesButton";
 import AddNote from "@/components/ui/addNote";
 import { Badge } from "@/components/ui/badge";
 import SortButton from "@/components/ui/sortButton";
+import { INote } from "@/db/Models/Notes";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
+export async function getNotes() {
+  const res = await axios.get("/api/note");
+  return res.data.data;
+}
 export default function Home() {
+  const [notes, setNotes] = useState<INote[]>();
+
+  useEffect(() => {
+    getNotes().then((data) => setNotes(data));
+  }, []);
+
   return (
     <main className="bg-[#171717] dark flex min-h-screen  flex-col items-center justify-start p-24">
       <div className="w-1/2">
@@ -18,11 +32,13 @@ export default function Home() {
         <div className="mt-12 flex flex-col gap-y-4">
           <div className="flex gap-x-2">
             <h2 className="text-white">Recently added notes</h2>
-            <Badge variant="outline">2</Badge>
+            <Badge variant="outline">{notes?.length}</Badge>
           </div>
 
-          <NotesButton />
-          <NotesButton />
+          {notes &&
+            notes.map((note: INote, index: number) => (
+              <NotesButton key={index} note={note} />
+            ))}
         </div>
       </div>
     </main>
