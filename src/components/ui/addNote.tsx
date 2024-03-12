@@ -15,7 +15,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "./button";
 import axios from "axios";
 import { useToast } from "./use-toast";
-import { INote } from "@/db/Models/Notes";
 export default function AddNote() {
   const [noteTitle, setNoteTitle] = useState<string>();
   const [noteContent, setNoteContent] = useState<string>();

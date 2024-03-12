@@ -7,13 +7,13 @@ import { INote } from "@/db/Models/Notes";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-export async function getNotes() {
-  const res = await axios.get("/api/note");
-  return res.data.data;
-}
 export default function Home() {
   const [notes, setNotes] = useState<INote[]>();
 
+  async function getNotes() {
+    const res = await axios.get("/api/note");
+    return res.data.data;
+  }
   useEffect(() => {
     getNotes().then((data) => setNotes(data));
   }, []);
